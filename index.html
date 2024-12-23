@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漫威SNAP焦点宝箱计算器</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f6fa;
+            --text-color: #2c3e50;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title-main {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .title-sub {
+            color: var(--primary-color);
+            font-size: 1.8em;
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .optional {
+            color: red;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+
+        .tooltip-trigger {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #666;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            margin-left: 5px;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip-trigger::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 12px;
+            border-radius: 4px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            white-space: normal;
+            line-height: 1.4;
+        }
+
+        .tooltip-trigger:hover::after {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .card-slot {
+            background: var(--secondary-color);
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .slot-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            min-width: 80px;
+        }
+
+        select {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9em;
+            appearance: none;
+            background: white url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px top 50%;
+            background-size: 12px auto;
+            min-width: 180px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        .radio-button {
+            flex: 1;
+        }
+
+        .radio-button input[type="radio"] {
+            display: none;
+        }
+
+        .radio-button label {
+            display: block;
+            padding: 8px;
+            text-align: center;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .radio-button input[type="radio"]:checked + label {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .random-slot {
+            background: var(--secondary-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+        }
+
+        .random-info {
+            flex-grow: 1;
+        }
+
+        .toggle-settings {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .settings-panel {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pool-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .pool-group {
+            background: var(--secondary-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+        }
+
+        .pool-group h4 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-row input {
+            width: 60px;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .probability-info {
+            background: var(--secondary-color);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        button.calculate {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        button.calculate:hover {
+            background-color: #357abd;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--secondary-color);
+            border-radius: var(--border-radius);
+            white-space: pre-wrap;
+        }
+
+        .value {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: var(--text-color);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-container">
+            <h1 class="title-main">漫威SNAP</h1>
+            <h2 class="title-sub">焦点宝箱计算器</h2>
+        </div>
+        
+        <div class="card-slot">
+            <div class="slot-title">卡位1</div>
+            <select id="pool1">
+                <option value="0">无价值（0代币）</option>
+                <option value="4">4池卡（3000代币）</option>
+                <option value="5" selected>5池卡（6000代币）</option>
+            </select>
+            <div class="radio-group">
+                <div class="radio-button">
+                    <input type="radio" id="want1" name="want1" value="true" checked>
+                    <label for="want1">想要这张卡</label>
+                </div>
+                <div class="radio-button">
+                    <input type="radio" id="notwant1" name="want1" value="false">
+                    <label for="notwant1">不想要这张卡</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-slot">
+            <div class="slot-title">卡位2</div>
+            <select id="pool2">
+                <option value="0">无价值（0代币）</option>
+                <option value="4">4池卡（3000代币）</option>
+                <option value="5" selected>5池卡（6000代币）</option>
+            </select>
+            <div class="radio-group">
+                <div class="radio-button">
+                    <input type="radio" id="want2" name="want2" value="true" checked>
+                    <label for="want2">想要这张卡</label>
+                </div>
+                <div class="radio-button">
+                    <input type="radio" id="notwant2" name="want2" value="false">
+                    <label for="notwant2">不想要这张卡</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-slot">
+            <div class="slot-title">卡位3</div>
+            <select id="pool3">
+                <option value="0">无价值（0代币）</option>
+                <option value="4">4池卡（3000代币）</option>
+                <option value="5" selected>5池卡（6000代币）</option>
+            </select>
+            <div class="radio-group">
+                <div class="radio-button">
+                    <input type="radio" id="want3" name="want3" value="true" checked>
+                    <label for="want3">想要这张卡</label>
+                </div>
+                <div class="radio-button">
+                    <input type="radio" id="notwant3" name="want3" value="false">
+                    <label for="notwant3">不想要这张卡</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="random-slot">
+            <div class="slot-title">随机卡位4</div>
+            <div class="random-info">
+                <p class="default-value">默认期望价值：2000代币</p>
+                <div class="advanced-settings">
+                    <button type="button" class="toggle-settings" onclick="toggleAdvancedSettings()">
+                        高级设置
+                    </button>
+                    <div id="advancedSettingsPanel" class="settings-panel" style="display: none;">
+                        <div class="pool-settings">
+                            <div class="pool-group">
+                                <h4>4池卡设置</h4>
+                                <div class="input-row">
+                                    游戏内4池卡总数：<input type="number" id="total4pool" min="0" value="0">张
+                                </div>
+                                <div class="input-row">
+                                    你缺少<input type="number" id="missing4pool" min="0" value="0">张，其中你想要的卡有<input type="number" id="wanted4pool" min="0" value="0">张<span class="optional">选填</span><span class="tooltip-trigger" data-tooltip="如不填写，『计算建议』时，『卡牌价值的角度』和『从想要卡牌的角度』都使用『随机卡位的期望价值』。而如果填写了，后面『计算建议』的时候，『卡牌价值的角度』就是计算卡牌的价值。但是『从想要卡牌的角度』会把不想要的卡牌计算为0代币">?</span>
+                                </div>
+                            </div>
+                            <div class="pool-group">
+                                <h4>5池卡设置</h4>
+                                <div class="input-row">
+                                    游戏内5池卡总数：<input type="number" id="total5pool" min="0" value="0">张
+                                </div>
+                                <div class="input-row">
+                                    你缺少<input type="number" id="missing5pool" min="0" value="0">张，其中你想要的卡有<input type="number" id="wanted5pool" min="0" value="0">张<span class="optional">选填</span><span class="tooltip-trigger" data-tooltip="如不填写，『计算建议』时，『卡牌价值的角度』和『从想要卡牌的角度』都使用『随机卡位的期望价值』。而如果填写了，后面『计算建议』的时候，『卡牌价值的角度』就是计算卡牌的价值。但是『从想要卡牌的角度』会把不想要的卡牌计算为0代币">?</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="probabilityInfo" class="probability-info"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate" onclick="calculate()">计算建议</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function toggleAdvancedSettings() {
+            const panel = document.getElementById('advancedSettingsPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            updateProbabilities();
+        }
+
+        function updateProbabilities() {
+            const total4 = parseInt(document.getElementById('total4pool').value) || 0;
+            const missing4 = parseInt(document.getElementById('missing4pool').value) || 0;
+            const total5 = parseInt(document.getElementById('total5pool').value) || 0;
+            const missing5 = parseInt(document.getElementById('missing5pool').value) || 0;
+            const wanted4 = parseInt(document.getElementById('wanted4pool').value) || 0;
+            const wanted5 = parseInt(document.getElementById('wanted5pool').value) || 0;
+
+            const totalCards = total4 + total5;
+            if (totalCards === 0) return;
+
+            // 计算已拥有的卡牌数量
+            const owned4 = total4 - missing4;
+            const owned5 = total5 - missing5;
+
+            // 计算概率
+            const dup4Prob = (owned4 / totalCards) * 100;
+            const dup5Prob = (owned5 / totalCards) * 100;
+            const dupTotalProb = ((owned4 + owned5) / totalCards) * 100;
+
+            const new4Prob = (missing4 / totalCards) * 100;
+            const new5Prob = (missing5 / totalCards) * 100;
+            const newTotalProb = 100 - dupTotalProb;
+
+            // 计算随机卡位的期望价值
+            let valueText = '';
+            
+            // 基础价值计算
+            const baseValue = (dupTotalProb * 2000 + new4Prob * 3000 + new5Prob * 6000) / 100;
+            valueText += `- 从卡牌价值的角度${baseValue.toFixed(2)}代币`;
+
+            // 如果填写了想要的卡牌数量，添加想要卡牌的角度的计算
+            if (wanted4 > 0 || wanted5 > 0) {
+                const dupValue = (dupTotalProb/100) * 2000;
+                const newProb = 1 - (dupTotalProb/100);
+                const totalMissing = missing4 + missing5;
+        
+                const wanted4Value = totalMissing > 0 ? newProb * (wanted4 / totalMissing) * 3000 : 0;
+                const wanted5Value = totalMissing > 0 ? newProb * (wanted5 / totalMissing) * 6000 : 0;
+        
+                const wantedValue = dupValue + wanted4Value + wanted5Value;
+                valueText += `\n- 从想要卡牌的角度${wantedValue.toFixed(2)}代币`;
+            }
+
+
+
+            // 更新概率显示
+            const probInfo = document.getElementById('probabilityInfo');
+            probInfo.innerHTML = 
+                `抽到重复卡的概率为${dupTotalProb.toFixed(2)}%，其中：
+- 抽到重复4池卡概率为${dup4Prob.toFixed(2)}%
+- 抽到重复5池卡概率为${dup5Prob.toFixed(2)}%
+
+抽到未拥有卡牌的概率为${newTotalProb.toFixed(2)}%，其中：
+- 抽到未拥有4池卡概率为${new4Prob.toFixed(2)}%
+- 抽到未拥有5池卡概率为${new5Prob.toFixed(2)}%
+
+随机卡位的期望收益：
+${valueText}`;
+
+            // 更新默认显示的期望价值
+            document.querySelector('.default-value').textContent = 
+                `随机卡位期望价值：${baseValue.toFixed(2)}代币`;
+        }
+
+        function getCardValue(pool) {
+            const values = {
+                "0": 0,
+                "4": 3000,
+                "5": 6000
+            };
+            return values[pool];
+        }
+
+        function getRandomValue() {
+            const total4 = parseInt(document.getElementById('total4pool').value) || 0;
+            const missing4 = parseInt(document.getElementById('missing4pool').value) || 0;
+            const total5 = parseInt(document.getElementById('total5pool').value) || 0;
+            const missing5 = parseInt(document.getElementById('missing5pool').value) || 0;
+
+            const totalCards = total4 + total5;
+            if (totalCards === 0) return 2000; // 如果未设置，返回默认值
+
+            // 计算已拥有的卡牌数量
+            const owned4 = total4 - missing4;
+            const owned5 = total5 - missing5;
+
+            // 计算概率
+            const dup4Prob = owned4 / totalCards;
+            const dup5Prob = owned5 / totalCards;
+            const new4Prob = missing4 / totalCards;
+            const new5Prob = missing5 / totalCards;
+
+            // 计算期望值
+            return dup4Prob * 2000 + dup5Prob * 2000 + new4Prob * 3000 + new5Prob * 6000;
+        }
+
+        function getRandomValueWanted() {
+            const total4 = parseInt(document.getElementById('total4pool').value) || 0;
+            const missing4 = parseInt(document.getElementById('missing4pool').value) || 0;
+            const total5 = parseInt(document.getElementById('total5pool').value) || 0;
+            const missing5 = parseInt(document.getElementById('missing5pool').value) || 0;
+            const wanted4 = parseInt(document.getElementById('wanted4pool').value) || 0;
+            const wanted5 = parseInt(document.getElementById('wanted5pool').value) || 0;
+
+            const totalCards = total4 + total5;
+            if (totalCards === 0) return 2000;
+
+            // 计算已拥有的卡牌数量
+            const owned4 = total4 - missing4;
+            const owned5 = total5 - missing5;
+            const ownedTotal = owned4 + owned5;
+
+            // 重复卡概率和价值
+            const dupProb = ownedTotal / totalCards;
+            const dupValue = dupProb * 2000;
+
+            const totalMissing = missing4 + missing5;
+            if (totalMissing === 0) return dupValue;
+
+            // 新卡概率
+            const newProb = 1 - dupProb;
+
+            // 想要的卡的价值
+            const wanted4Value = totalMissing > 0 ? newProb * (wanted4 / totalMissing) * 3000 : 0;
+            const wanted5Value = totalMissing > 0 ? newProb * (wanted5 / totalMissing) * 6000 : 0;
+
+            return dupValue + wanted4Value + wanted5Value;
+        }
+
+
+        function calculate() {
+            const keyPrice = 3288;
+            
+            // 获取每个卡位的信息
+            const slots = [1, 2, 3].map(i => ({
+                pool: document.getElementById(`pool${i}`).value,
+                wanted: document.querySelector(`input[name="want${i}"]:checked`).value === "true",
+                value: getCardValue(document.getElementById(`pool${i}`).value)
+            }));
+
+            // 计算总价值
+            const totalValue = slots.reduce((sum, slot) => sum + slot.value, 0);
+            
+            // 计算想要的卡的总价值
+            const wantedValue = slots.reduce((sum, slot) => 
+                sum + (slot.wanted ? slot.value : 0), 0);
+
+            // 获取随机卡位的期望价值（两种角度）
+            const randomValue = getRandomValue();
+            const randomValueWanted = getRandomValueWanted();
+
+            // 计算期望收益
+            const expectedValueTotal = (totalValue + randomValue) / 4;
+            const expectedValueWanted = (wantedValue + randomValueWanted) / 4;
+
+            // 生成建议文本
+            let result = `<h2>抽卡建议：</h2>`;
+            result += `从卡牌价值的角度，<span class="value">${expectedValueTotal > keyPrice ? '推荐抽' : '不推荐抽'}</span>；\n`;
+            result += `从想要卡牌的角度，<span class="value">${expectedValueWanted > keyPrice ? '建议抽' : '不建议抽'}</span>\n\n`;
+
+            result += `<h3>卡牌价值的角度：</h3>`;
+            result += `3张固定卡位，总共价值为<span class="value">${totalValue}</span>代币，随机卡位的期望价值为<span class="value">${randomValue.toFixed(2)}</span>代币。\n\n`;
+            result += `既，1把钥匙的期望收益值为（<span class="value">${totalValue}</span>+<span class="value">${randomValue.toFixed(2)}</span>）÷4＝<span class="value">${expectedValueTotal.toFixed(2)}</span>代币\n\n`;
+            result += `${expectedValueTotal > keyPrice ? '大于' : '小于'}钥匙的获取成本（3288代币），所以<span class="value">${expectedValueTotal > keyPrice ? '建议抽取' : '不建议抽'}</span>\n\n`;
+
+            const wanted4 = parseInt(document.getElementById('wanted4pool').value) || 0;
+            const wanted5 = parseInt(document.getElementById('wanted5pool').value) || 0;
+
+            if (wanted4 > 0 || wanted5 > 0) {
+                result += `<h3>从想要卡牌的角度：</h3>`;
+                result += `你想要的卡牌总共价值为<span class="value">${wantedValue}</span>代币，随机卡位的期望价值为<span class="value">${randomValueWanted.toFixed(2)}</span>代币。\n\n`;
+                result += `既，1把钥匙的期望收益值为（<span class="value">${wantedValue}</span>+<span class="value">${randomValueWanted.toFixed(2)}</span>）÷4＝<span class="value">${expectedValueWanted.toFixed(2)}</span>代币\n\n`;
+                result += `${expectedValueWanted > keyPrice ? '大于' : '小于'}钥匙的获取成本（3288代币），所以<span class="value">${expectedValueWanted > keyPrice ? '建议抽取' : '不建议抽'}</span>`;
+            }
+
+            document.getElementById('result').innerHTML = result;
+        }
+
+        // 为所有输入框添加事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            ['total4pool', 'missing4pool', 'wanted4pool', 'total5pool', 'missing5pool', 'wanted5pool'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateProbabilities);
+            });
+        });
+    </script>
+</body>
+</html>
