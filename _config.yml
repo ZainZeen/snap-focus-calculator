@@ -1,0 +1,9 @@
+name: Your Site Name
+title: null
+defaults:
+  -
+    scope:
+      path: "" # 表示所有文件
+    values:
+      layout: "default"
+permalink: /index.html
