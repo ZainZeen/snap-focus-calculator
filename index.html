@@ -628,7 +628,7 @@ ${valueText}`;
         }
 
         //全域钥匙价值
-        const keyPrice = 2968;
+        const keyPrice = 2907;
 
         function calculate(num,isAppend = false) {
             
@@ -666,7 +666,7 @@ ${valueText}`;
             result += `<h3>卡牌价值的角度：</h3>`;
             result += `3张固定卡位，总共价值为<span class="value">${totalValue}</span>代币，随机卡位的期望价值为<span class="value">${randomValue}</span>代币。\n\n`;
             result += `既，1把钥匙的期望收益值为（<span class="value">${totalValue}</span>+<span class="value">${randomValue.toFixed(2)}</span>）÷${num}＝<span class="value">${expectedValueTotal.toFixed(2)}</span>代币\n\n`;
-            result += `${expectedValueTotal > keyPrice ? '大于' : '小于'}钥匙的获取成本（2968代币），所以<span class="value">${expectedValueTotal > keyPrice ? '建议抽取' : '不建议抽'}</span>\n\n`;
+            result += `${expectedValueTotal > keyPrice ? '大于' : '小于'}钥匙的获取成本（2907代币），所以<span class="value">${expectedValueTotal > keyPrice ? '建议抽取' : '不建议抽'}</span>\n\n`;
 
             const wanted4 = parseInt(document.getElementById('wanted4pool').value) || 0;
             const wanted5 = parseInt(document.getElementById('wanted5pool').value) || 0;
@@ -675,7 +675,7 @@ ${valueText}`;
                 result += `<h3>从想要卡牌的角度：</h3>`;
                 result += `你想要的卡牌总共价值为<span class="value">${wantedValue}</span>代币，随机卡位的期望价值为<span class="value">${randomValueWanted.toFixed(2)}</span>代币。\n\n`;
                 result += `既，1把钥匙的期望收益值为（<span class="value">${wantedValue}</span>+<span class="value">${randomValueWanted.toFixed(2)}</span>）÷4＝<span class="value">${expectedValueWanted.toFixed(2)}</span>代币\n\n`;
-                result += `${expectedValueWanted > keyPrice ? '大于' : '小于'}钥匙的获取成本（2968代币），所以<span class="value">${expectedValueWanted > keyPrice ? '建议抽取' : '不建议抽'}</span>`;
+                result += `${expectedValueWanted > keyPrice ? '大于' : '小于'}钥匙的获取成本（2907代币），所以<span class="value">${expectedValueWanted > keyPrice ? '建议抽取' : '不建议抽'}</span>`;
             }
             if(!isAppend)
             {
@@ -758,7 +758,7 @@ ${valueText}`;
             result += `<h3>卡牌价值的角度：</h3>`;
             result += `3张固定卡位，总共价值为<span class="value">${totalValue}</span>代币，随机卡位的期望价值为<span class="value">${randomValue}</span>代币。\n\n`;
             result += `既，1把钥匙的期望收益值为（<span class="value">${totalValue}</span>+<span class="value">${randomValue.toFixed(2)}</span>）÷${total}＝<span class="value">${expectedValueTotal.toFixed(2)}</span>代币\n\n`;
-            result += `${expectedValueTotal > keyPrice ? '大于' : '小于'}钥匙的获取成本（2968代币），所以<span class="value">${expectedValueTotal > keyPrice ? '建议抽取' : '不建议抽'}</span>\n\n`;
+            result += `${expectedValueTotal > keyPrice ? '大于' : '小于'}钥匙的获取成本（2907代币），所以<span class="value">${expectedValueTotal > keyPrice ? '建议抽取' : '不建议抽'}</span>\n\n`;
 
             const wanted4 = parseInt(document.getElementById('wanted4pool').value) || 0;
             const wanted5 = parseInt(document.getElementById('wanted5pool').value) || 0;
@@ -767,7 +767,7 @@ ${valueText}`;
                 result += `<h3>从想要卡牌的角度：</h3>`;
                 result += `你想要的卡牌总共价值为<span class="value">${wantedValue}</span>代币，随机卡位的期望价值为<span class="value">${randomValueWanted.toFixed(2)}</span>代币。\n\n`;
                 result += `既，1把钥匙的期望收益值为（<span class="value">${wantedValue}</span>+<span class="value">${randomValueWanted.toFixed(2)}</span>）÷${total}＝<span class="value">${expectedValueWanted.toFixed(2)}</span>代币\n\n`;
-                result += `${expectedValueWanted > keyPrice ? '大于' : '小于'}钥匙的获取成本（2968代币），所以<span class="value">${expectedValueWanted > keyPrice ? '建议抽取' : '不建议抽'}</span>`;
+                result += `${expectedValueWanted > keyPrice ? '大于' : '小于'}钥匙的获取成本（2907代币），所以<span class="value">${expectedValueWanted > keyPrice ? '建议抽取' : '不建议抽'}</span>`;
             }
             
            
